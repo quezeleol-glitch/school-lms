@@ -37,6 +37,21 @@ jobs:
           npx cap add android
           npx cap copy
 
+      - name: Fix Duplicate Kotlin Stdlib Conflict
+        run: |
+          # Menambahkan resolusi konflik duplikasi kelas kotlin ke build.gradle
+          BUILD_GRADLE="android/app/build.gradle"
+          if [ -f "$BUILD_GRADLE" ]; then
+            echo "" >> "$BUILD_GRADLE"
+            echo "configurations.all {" >> "$BUILD_GRADLE"
+            echo "    resolutionStrategy.eachDependency { details ->" >> "$BUILD_GRADLE"
+            echo "        if (details.requested.group == 'org.jetbrains.kotlin') {" >> "$BUILD_GRADLE"
+            echo "            details.useVersion '1.8.22'" >> "$BUILD_GRADLE"
+            echo "        }" >> "$BUILD_GRADLE"
+            echo "    }" >> "$BUILD_GRADLE"
+            echo "}" >> "$BUILD_GRADLE"
+          fi
+
       - name: Build Android APK via Gradle
         run: |
           cd android
